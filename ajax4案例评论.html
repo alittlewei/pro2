@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <script src="js/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+
+    <div class="panel panel-primary" style="margin: 15px;">
+        <div class="panel-heading">
+            <h3 class="panel-title">发表评论</h3>
+        </div>
+        <div class="panel-body">
+            <form action="" id="formAddCmt">
+                <div>评论人</div>
+                <input type="text" class="form-control" name="username" value="">
+                <div>评论内容</div>
+                <textarea name="content" id="content" class="form-control" value=""></textarea>
+                <button class="btn btn-primary" type="submit" id="add">提交评论</button>
+            </form>
+        </div>
+    </div>
+
+
+    <ul class="list-group" style="margin: 15px;" id="contentsUl">
+        <li class="list-group-item">
+            <span class="badge" style="background-color:blue;">评论时间</span>
+            <span class="badge" style="background-color:tomato;">评论人</span> content
+        </li>
+    </ul>
+
+    <script>
+        $("#formAddCmt").on("submit", function(e) {
+            e.preventDefault()
+            let data = $(this).serialize()
+            $.post("http://www.liulongbin.top:3006/api/addcmt", data, function(res) {
+                if (res.status !== 200) {
+                    return alert(res.msg)
+                }
+                alert("添加成功")
+                getcmtlist()
+                document.querySelector("#formAddCmt").reset()
+            })
+        })
+        getcmtlist()
+        setInterval(getcmtlist, 2000)
+
+        function getcmtlist() {
+            $.ajax({
+                method: "GET",
+                url: "http://www.liulongbin.top:3006/api/cmtlist",
+                success: function(res) {
+                    if (res.status !== 200) {
+                        return alert("获取失败")
+                    }
+                    console.log(res)
+                    let rows = []
+                    $.each(res.data, function(index, item) {
+                        if (index >= 100) {
+                            return
+                        }
+                        rows.push(`
+        <li class="list-group-item">
+            <span class="badge" style="background-color:blue;">${item.time}</span>
+            <span class="badge" style="background-color:tomato;">${item.username}</span> ${item.content}
+        </li>
+        `)
+                    })
+                    $("#contentsUl").empty().append(rows.join(""))
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

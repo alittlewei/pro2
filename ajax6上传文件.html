@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src=""></script>
+    <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+
+<body>
+    <form action="" id="avatarForm">
+        <input type="file" id="file1">
+        <button>上传文件</button>
+        <img src="" alt="" style="height: 200px;width: 200px;">
+    </form>
+    <div class="progress" style="margin: 15px;">
+        <div id="percDiv" class="progress-bar progress-bar-success progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+            0%
+        </div>
+    </div>
+    <script>
+        let avatarForm = document.querySelector("#avatarForm")
+        let percDiv = document.querySelector("#percDiv")
+        avatarForm.addEventListener("submit", function(e) {
+            e.preventDefault()
+            let file1 = document.querySelector("#file1").files
+            if (file1.length <= 0) {
+                return alert("请选择文件")
+            }
+            let formData = new FormData()
+            formData.append("avatar", file1[0])
+            let xhr = new XMLHttpRequest()
+            xhr.upload.onprogress = function(e) {
+                let perc = 0
+                if (e.lengthComputable) {
+                    perc = Math.ceil(e.loaded / e.total * 100)
+                    percDiv.style.width = `${perc}%`
+                    percDiv.innerHTML = `${perc}%`
+                    console.log(percDiv.style.width)
+                }
+            }
+            xhr.open("POST", "http://www.liulongbin.top:3006/api/upload/avatar")
+            xhr.send(formData)
+            xhr.onreadystatechange = function(res) {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    let data = JSON.parse(xhr.responseText)
+                        //location.href = `http://www.liulongbin.top:3006${data.url}`
+                    document.querySelector("img").src = `http://www.liulongbin.top:3006${data.url}`
+
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
